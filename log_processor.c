@@ -13,7 +13,7 @@ unsigned int hash_function(const char* str) {
     unsigned long hash = 5381;
     int c;
     while ((c = *str++)) {
-        hash = ((hash << 5) + hash) + c; 
+        hash = ((hash << 5) + hash) + c;
     }
     return hash % HASH_SIZE;
 }
@@ -38,7 +38,7 @@ void insert_or_update(HashNode** table, const char* key, int increment, int* uni
     new_node->count = increment;
     new_node->next = table[index];
     table[index] = new_node;
-    
+
     // Si nos pidieron contar los únicos (como en las IPs), le suma 1 al total
     if (unique_counter != NULL) {
         (*unique_counter)++;
@@ -50,13 +50,13 @@ void parse_log_line(char* line, LogStats* stats) {
     char ip[MAX_IP_LEN];
     char url[MAX_URL_LEN];
     int status;
-    
+
     // Corta la línea y saca la IP, la URL y el código HTTP
     if (sscanf(line, "%19s - - [%*[^]]] \"%*s %255[^\"]\" %d", ip, url, &status) == 3) {
-        
+
         insert_or_update(stats->ip_table, ip, 1, &stats->unique_ips);
         insert_or_update(stats->url_table, url, 1, NULL);
-        
+
         // Suma 1 si el código HTTP es un error (400 al 599)
         if (status >= 400 && status <= 599) {
             stats->total_errors++;
@@ -67,7 +67,7 @@ void parse_log_line(char* line, LogStats* stats) {
 // 5. Junta los resultados de un hilo con los resultados totales
 void merge_stats(LogStats* global, LogStats* local) {
     global->total_errors += local->total_errors;
-    
+
     for (int i = 0; i < HASH_SIZE; i++) {
         // Pasa las IPs del hilo local al total global
         HashNode* current_ip = local->ip_table[i];
@@ -75,7 +75,7 @@ void merge_stats(LogStats* global, LogStats* local) {
             insert_or_update(global->ip_table, current_ip->key, current_ip->count, &global->unique_ips);
             current_ip = current_ip->next;
         }
-        
+
         // Pasa las URLs del hilo local al total global
         HashNode* current_url = local->url_table[i];
         while (current_url != NULL) {
@@ -94,7 +94,7 @@ void free_stats(LogStats* stats) {
             current = current->next;
             free(temp);
         }
-        
+
         current = stats->url_table[i];
         while (current != NULL) {
             HashNode* temp = current;

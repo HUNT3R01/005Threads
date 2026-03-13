@@ -1,4 +1,4 @@
-#ifdef LOG_PROCESSOR_H
+#ifndef LOG_PROCESSOR_H
 #define LOG_PROCESSOR_H
 
 #define MAX_IP_LEN 16
